@@ -1,0 +1,6 @@
+rootProject.name = 'JavaFxGradle'
+include 'app'
+findProject(':app')?.name = 'App'
+include 'java-packager'
+
+

@@ -1,0 +1,88 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url '../repo'
+        }
+        mavenLocal()
+    }
+    dependencies {
+//        classpath 'io.github.fvarrui:javapackager:1.4.2'
+        classpath 'io.github.fvarrui:java-packager:2.1.0'
+
+    }
+}
+
+
+
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+apply plugin: 'io.github.fvarrui.javapackager.plugin'
+
+
+javafx {
+    version = "11.0.2"
+    sdk = JAVAFX_SDK //本地sdk根目录
+    modules = ['javafx.controls', "javafx.fxml"]
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+}
+
+
+//javafx 所需的dll。这里移除了webkit
+def javafx_dlls = [
+        'decora_sse.dll',
+        'glass.dll',
+        'javafx_font.dll',
+        'javafx_iio.dll',
+        'jfxmedia.dll',
+//                   'jfxwebkit.dll',
+        'prism_common.dll',
+        'prism_d3d.dll',
+        'prism_sw.dll']
+
+mainClassName = 'com.javafx.app.Launcher'
+javapackager {
+    mainClass = 'com.javafx.app.Launcher'
+    generateInstaller = false
+    jreMinVersion = '1.9.0'
+    description = 'Packages the application as a native Windows executable and bundles it in a zipball'
+    platform = 'windows'
+    bundleJre = true //这里true，必须打包jre
+    customizedJre = true //这里true，需要自定义jre
+    createZipball = true
+    modules = ['java.base', 'java.desktop', 'java.xml', 'java.scripting', 'java.management', 'java.sql', 'jdk.unsupported']
+    //modules 是 默认的 模块，包含了基础项目所需的基础库
+    zipName ='desktop.zip'
+
+}
+
+task packageForWindows64(type: io.github.fvarrui.javapackager.gradle.PackageTask, dependsOn: build) {
+    def dir = JAVAFX_SDK + "/bin"
+    def dlls=new ArrayList<File>()
+    javafx_dlls.forEach{
+        dlls.add(new File("$dir/$it"))
+    }
+    //找到要打包的dll文件
+    appName = 'desktop_win64'
+    winConfig {
+        icoFile =file('/assets/windows/desktop.ico')
+        //会将dll 复制到 /build/desktop_win64/jre/bin 目录下
+        bundleDlls = dlls
+        //bundleDlls 将打包dll文件到jre中
+    }
+
+}
+

@@ -1,0 +1,16 @@
+
+
+ext{
+
+    JAVAFX_SDK=""
+    Properties local = new Properties();
+    File file = project.rootProject.file("local.properties");
+    if(file.exists()){
+        local.load(file.newDataInputStream());
+
+    }
+    JAVAFX_SDK = local.getProperty("javafx-sdk")
+    if(JAVAFX_SDK ==null ||JAVAFX_SDK.isEmpty()){
+        throw new IllegalStateException("please set javafx sdk !!!")
+    }
+}
